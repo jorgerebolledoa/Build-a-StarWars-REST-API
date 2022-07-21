@@ -30,14 +30,30 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    users = list(map(lambda User: User.serialize(), users))
+    return jsonify(users), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route('/users/<int:users_id>', methods=['GET'])
+def get_user_by_id(users_id):
+    users = User.query.get(users_id)
+    return jsonify(users.serialize()), 200
 
-    return jsonify(response_body), 200
+
+
+@app.route('/users', methods=['POST'])
+def create_users():
+    users = User()
+    users.email = request.json.get('email') 
+    users.password = request.json.get('password') 
+    users.is_active= request.json.get("is_active")
+    users.save()
+    return jsonify(users.serialize()), 201
+
+
+
 
 @app.route("/planets", methods=['GET'])
 def get_planets():
