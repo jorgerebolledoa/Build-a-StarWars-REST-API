@@ -1,69 +1,83 @@
-import os
-import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 
-Base = declarative_base()
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(80), unique=False, nullable=False)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
-class User(Base):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    password = Column(String(250), nullable=False)
-    email = Column(String(250), nullable=False)
-    favorite_people = relationship('Favorite_People', backref="user")
-    favorite_planet = relationship('Favorite_Planet', backref="user")
-    favorite_starship = relationship('Favorite_Starship', backref="user")
+    def serialize(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            # do not serialize the password, its a security breach
+        }
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
+    def update(self):
+        db.session.commit()
 
-class People(Base):
-    __tablename__ = 'people'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    gender = Column(String(250))
-    height = Column(Integer, nullable=False)
-    favorite_people = relationship('Favorite_People', backref="people")
-    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
-class Planet(Base):
-    __tablename__ = 'planet'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250))
-    population = Column(Integer, nullable=False)
-    climate = Column(String(255), nullable=False)
-    favorite_planet = relationship('Favorite_Planet', backref="planet")
+class People(db.Model):
+    __tablename__ = 'peoples'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(250), nullable=False)
+    thumbnail = db.Column(db.String(250), nullable=False)
+    image = db.Column(db.String(255), default="")
 
-class Starship(Base):
-    __tablename__ = 'starship'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    passengers = Column(Integer, nullable=False)
-    model= Column(String(250), nullable=False)
-    favorite_starship = relationship('Favorite_Starship', backref="starship")
-    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,  
+            "description": self.description,
+            "thumbnail": self.thumbnail,
+            "image": self.image
+        }
 
-class Favorite_People(Base):
-    __tablename__ = 'favorite_people'
-    id = Column(Integer, primary_key=True)
-    user_id= Column(Integer, ForeignKey('user.id'))
-    people_id= Column(Integer, ForeignKey('people.id'))
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
-class Favorite_Planet(Base):
-    __tablename__ = 'favorite_planet'
-    id = Column(Integer, primary_key=True)
-    user_id= Column(Integer, ForeignKey('user.id'))
-    planet_id= Column(Integer, ForeignKey('planet.id'))
+    def update(self):
+        db.session.commit()
 
-class Favorite_Starship(Base):
-    __tablename__ = 'favorite_starship'
-    id = Column(Integer, primary_key=True)
-    user_id= Column(Integer, ForeignKey('user.id'))
-    starship_id= Column(Integer, ForeignKey('starship.id'))
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
-    def to_dict(self):
-        return {}
+class Planet(db.Model):
+    __tablename__ = 'planets'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(250), nullable=False)
+    thumbnail = db.Column(db.String(250), nullable=False)
+    image = db.Column(db.String(255), default="")
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,  
+            "description": self.description,
+            "thumbnail": self.thumbnail,
+            "image": self.image
+        }
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

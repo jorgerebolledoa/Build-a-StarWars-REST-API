@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Planet, People
 #from models import Person
 
 app = Flask(__name__)
@@ -38,6 +38,97 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route("/planets", methods=['GET'])
+def get_planets():
+    planets = Planet.query.all()
+    planets = list(map(lambda Planet: Planet.serialize(), planets))
+    return jsonify(planets), 200
+
+@app.route('/planets/<int:planets_id>', methods=['GET'])
+def get_planets_by_id(planets_id):
+    planets = Planet.query.get(planets_id)
+    return jsonify(planets.serialize()), 200
+
+
+
+@app.route('/planets', methods=['POST'])
+def create_planets():
+    planets = Planet()
+    planets.name = request.json.get('name')
+    planets.description = request.json.get('description')
+    planets.thumbnail = request.json.get('thumbnail')
+    planets.image = request.json.get('image')
+    planets.save()
+    return jsonify(planets.serialize()), 201
+
+
+@app.route('/planets/<int:planets_id>', methods=['PUT'])
+def update_planets(planets_id):
+    planets = Planet.query.get(planets_id)
+    planets.name = request.json.get('name')
+    planets.description = request.json.get('description')
+    planets.thumbnail = request.json.get('thumbnail')
+    planets.image = request.json.get('image')
+    planets.update()
+    return jsonify(planets.serialize()), 201
+
+
+@app.route('/planets/<int:planets_id>', methods=['DELETE'])
+def delete_planets(planets_id):
+    planets = Planet.query.get(planets_id)
+    planets.delete()
+    return jsonify(planets.serialize()), 201
+
+@app.route("/peoples", methods=['GET'])
+def get_peoples():
+    peoples = People.query.all()
+    peoples = list(map(lambda People: People.serialize(), peoples))
+    return jsonify(peoples), 200
+
+
+@app.route('/peoples/<int:peoples_id>', methods=['GET'])
+def get_peoples_by_id(peoples_id):
+    peoples = People.query.get(peoples_id)
+    return jsonify(peoples.serialize()), 200
+
+
+@app.route('/peoples', methods=['POST'])
+def create_peoples():
+    peoples = People()
+    peoples.name = request.json.get('name')
+    peoples.description = request.json.get('description')
+    peoples.thumbnail = request.json.get('thumbnail')
+    peoples.image = request.json.get('image')
+    peoples.save()
+    return jsonify(peoples.serialize()), 201
+
+
+@app.route('/peoples/<int:peoples_id>', methods=['PUT'])
+def update_peoples(peoples_id):
+    peoples = People.query.get(peoples_id)
+    peoples.name = request.json.get('name')
+    peoples.description = request.json.get('description')
+    peoples.thumbnail = request.json.get('thumbnail')
+    peoples.image = request.json.get('image')
+    peoples.update()
+    return jsonify(peoples.serialize()), 201
+
+
+@app.route('/peoples/<int:peoples_id>', methods=['DELETE'])
+def delete_peoples(peoples_id):
+    peoples = People.query.get(peoples_id)
+    peoples.delete()
+    return jsonify(peoples.serialize()), 201
+
+
+
+
+
+
+
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
