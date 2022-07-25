@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Planet, People
+from models import db, User, Planet, People, Favorite_People,Favorite_Planet
 #from models import Person
 
 app = Flask(__name__)
@@ -41,6 +41,50 @@ def get_user_by_id(users_id):
     users = User.query.get(users_id)
     return jsonify(users.serialize()), 200
 
+@app.route('/Favorite_Planet', methods=['GET'])
+def get_favorites_planets():
+    favorites_planets = Favorite_Planet.query.all()
+    favorites_planets = list(map(lambda Favorite_Planet: Favorite_Planet.serialize(), favorites_planets ))
+    return jsonify(favorites_planets), 200
+@app.route('/Favorite_Planet/<int:users_id>', methods=['GET'])
+def get_favorites_planets_by_id(users_id):
+    favorites_planets = Favorite_Planet.query.get(users_id,users_id)
+    return jsonify(favorites_planets.serialize()), 200
+
+
+@app.route('/Favorite_Poeople', methods=['GET'])
+def get_favorites_peoples():
+    favorites_peoples = Favorite_People.query.all()
+    favorites_peoples = list(map(lambda Favorite_People: Favorite_People.serialize(), favorites_peoples))
+    return jsonify(favorites_peoples), 200
+
+
+@app.route('/favorites/planet', methods=['POST'])
+def create_favorites_planet():
+    favorites = Favorite_Planet()
+    favorites.planets_id = request.json.get('planets_id') 
+    favorites.users_id = request.json.get('users_id')  
+    favorites.save()
+    return jsonify(favorites.serialize()), 201
+@app.route('/favorites/planet/<int:planets_id>', methods=['DELETE'])
+def delete_favorites_planet(planets_id):
+    favorites = Favorite_Planet.query.get(planets_id)
+    favorites.delete()
+    return jsonify(favorites.serialize()), 201
+
+@app.route('/favorites/people', methods=['POST'])
+def create_favorites_people():
+    favorites = Favorite_People()
+    favorites.peoples_id = request.json.get('peoples_id') 
+    favorites.users_id = request.json.get('users_id')  
+    favorites.save()
+    return jsonify(favorites.serialize()), 201
+
+@app.route('/favorites/people/<int:people_id>', methods=['DELETE'])
+def delete_favorites_people(people_id):
+    favorites = Favorite_Planet.query.get(people_id)
+    favorites.delete()
+    return jsonify(favorites.serialize()), 201
 
 
 @app.route('/users', methods=['POST'])
